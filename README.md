@@ -5,6 +5,9 @@
   <p><strong>Where Ideas Clash Like Pokémon Battles!</strong></p>
 
   <p>
+    <a href="https://yapper-bot.vercel.app/" target="_blank"><strong>🟢 PLAY LIVE ON VERCEL</strong></a>
+  </p>
+  <p>
     <a href="#-about-the-game">About</a> •
     <a href="#-game-modes">Game Modes</a> •
     <a href="#-tech-stack">Tech Stack</a> •
@@ -54,7 +57,7 @@ Grab some popcorn. Provide a topic and sit back as two AI personas (PRO vs. AGAI
 - **Animations:** Framer Motion
 - **Styling:** Tailwind CSS + Custom retro `index.css`
 - **AI Core Engine:** Google Gemini (`gemini-2.5-flash`)
-- **Backend Proxy:** Node.js / Express *(Local secure proxy to negotiate API requests without exposing keys)*
+- **Backend:** Vercel Serverless Functions & Redis (ioredis)
 
 ---
 
