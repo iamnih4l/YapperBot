@@ -17,7 +17,15 @@ export const generateDebateResponse = async (prompt: string) => {
         return data.text;
     } catch (error) {
         console.error("Error generating debate response:", error);
-        return "I'm having trouble thinking of a rebuttal right now...";
+        const errorMessage = error instanceof Error ? error.message : String(error);
+
+        if (errorMessage.toLowerCase().includes('429') ||
+            errorMessage.toLowerCase().includes('quota') ||
+            errorMessage.toLowerCase().includes('too many requests')) {
+            return "I'm thinking too fast! The API is rate-limiting me (429 Error). Please wait a moment before continuing.";
+        }
+
+        return `I'm having trouble thinking of a rebuttal right now... (${errorMessage})`;
     }
 };
 

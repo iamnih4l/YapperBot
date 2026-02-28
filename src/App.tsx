@@ -709,27 +709,17 @@ const BotVsBotMode: React.FC<{ topic: string; onEnd: (winner: string) => void; o
     const speaker = currentTurn === 'A' ? botA : botB;
     const opponent = currentTurn === 'A' ? botB : botA;
 
-    const historyStr = currentHistory.length > 0
-      ? currentHistory.map(m => `${m.speaker}: ${m.text}`).join('\n')
-      : "No arguments yet. Make your strong opening statement.";
+    const recentHistory = currentHistory.slice(-2);
+    const historyStr = recentHistory.length > 0
+      ? recentHistory.map(m => `${m.speaker}: ${m.text}`).join('\n')
+      : "Start with an opening claim.";
 
-    const prompt = `
-      You are participating in a fierce, competitive debate game.
-      Debate Topic: "${topic}"
-      
-      Your Role: ${speaker.name}
-      Your Stance: ${speaker.stance} (You MUST argue for this side aggressively)
-      Opponent: ${opponent.name} (${opponent.stance})
-      
-      Conversation History:
-      ${historyStr}
-      
-      Instructions:
-      1. Directly attack and dismantle your opponent's last point. Do NOT just state your isolated facts.
-      2. If this is the opening statement, make a powerful claim supporting your stance.
-      3. Keep it punchy, aggressive, and logical. Maximum 2 sentences.
-      4. DO NOT use prefixes like "Reply:", "[REPLY]", or your name. Just output the actual argument text directly.
-    `;
+    const prompt = `Topic:"${topic}"
+Role:${speaker.name}(${speaker.stance}) vs ${opponent.name}(${opponent.stance})
+History:
+${historyStr}
+
+Task: Argue aggressively for your stance. Attack opponent's last point. Max 2 sentences. No prefixes.`;
 
     try {
       const result = await geminiModel.generateContent(prompt);
@@ -765,8 +755,14 @@ const BotVsBotMode: React.FC<{ topic: string; onEnd: (winner: string) => void; o
             });
           }
         }
-        setTurn(prev => prev === 'A' ? 'B' : 'A');
-        setTurnCount(prev => prev + 1);
+
+        // Add artificial delay before passing the turn visually
+        setCurrentMessage(null);
+        setTimeout(() => {
+          setTurn(prev => prev === 'A' ? 'B' : 'A');
+          setTurnCount(prev => prev + 1);
+        }, 1500);
+
       }, reply.length * 30 + 1000);
     } catch (error) {
       console.error("AI Error:", error);
@@ -779,7 +775,7 @@ const BotVsBotMode: React.FC<{ topic: string; onEnd: (winner: string) => void; o
     if (turnCount < MAX_TURNS && (botA.credibility > 0 && botB.credibility > 0)) {
       const timer = setTimeout(() => {
         generateResponse(turn, history);
-      }, 1500);
+      }, 4000);
       return () => clearTimeout(timer);
     } else if (turnCount >= MAX_TURNS || botA.credibility <= 0 || botB.credibility <= 0) {
       let runWinner = 'TIE';
@@ -868,25 +864,15 @@ const UserVsBotMode: React.FC<{ topic: string; onEnd: (winner: string) => void; 
 
     setIsTyping(true);
 
-    const historyStr = updatedHistory.map(m => `${m.speaker}: ${m.text}`).join('\n');
+    const recentHistory = updatedHistory.slice(-2);
+    const historyStr = recentHistory.map(m => `${m.speaker}: ${m.text}`).join('\n');
 
-    const prompt = `
-      You are participating in a competitive debate game against a human user.
-      Debate Topic: "${topic}"
-      
-      Your Role: AI OPPONENT (AGAINST)
-      User Role: YOU (PRO)
-      
-      Recent Debate History:
-      ${historyStr}
-      
-      Instructions:
-      1. You are fiercely arguing AGAINST the topic, while the user is arguing FOR it.
-      2. You MUST directly counter, attack, or dismantle the User's very last argument.
-      3. Do NOT repeat yourself. Bring up new logic or flaws in the user's reasoning.
-      4. Keep it short and aggressive (max 2 sentences).
-      5. DO NOT use prefixes like "Reply:", "[REPLY]", or your name. Just output the actual argument text directly.
-    `;
+    const prompt = `Topic:"${topic}"
+Role:AI(AGAINST) vs User(PRO)
+History:
+${historyStr}
+
+Task: Argue AGAINST topic. Dismantle user's last point. Bring up new logic. Max 2 sentences. No prefixes.`;
 
     try {
       const result = await geminiModel.generateContent(prompt);
