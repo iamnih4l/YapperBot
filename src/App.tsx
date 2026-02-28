@@ -775,7 +775,7 @@ Task: Argue aggressively for your stance. Attack opponent's last point. Max 2 se
     if (turnCount < MAX_TURNS && (botA.credibility > 0 && botB.credibility > 0)) {
       const timer = setTimeout(() => {
         generateResponse(turn, history);
-      }, 4000);
+      }, 5000);
       return () => clearTimeout(timer);
     } else if (turnCount >= MAX_TURNS || botA.credibility <= 0 || botB.credibility <= 0) {
       let runWinner = 'TIE';
